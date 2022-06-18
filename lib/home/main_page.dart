@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ripple/data/data.dart';
+import 'package:ripple/home/search.dart';
 import 'package:ripple/models/wallpaper_model.dart';
 import 'package:ripple/widgets/widgets.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,8 @@ class _HomePageState extends State<HomePage> {
   List<CategoriesModel> categories = [];
   List<WallpaperModel> wallpapers = [];
 
+  TextEditingController searchController = TextEditingController();
+
   WallpaperModel wallModel = WallpaperModel();
 
   getWallpapers() async {
@@ -28,17 +31,15 @@ class _HomePageState extends State<HomePage> {
       headers: { "Authorization" : apiKey }
     );
 
-    Map<String, dynamic> image_data = jsonDecode(response.body);
+    Map<String, dynamic> imageData = jsonDecode(response.body);
 
-    image_data["photos"].forEach((element){
-      print(element);
+    imageData["photos"].forEach((element){
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
-      wallModel.portrait = element["src"]["portrait"];
+      wallModel.portrait = element["src"]["medium"];
       wallModel.original = element["src"]["original"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
-      print("id is" + wallModel.id.toString());
     });
 
     setState(() {});
@@ -53,68 +54,87 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.only(top: 45, bottom: 15),
-              padding: EdgeInsets.only(left: 20, right: 20),
-              child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 30,),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xfff5f8fd),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: EdgeInsets.only(left: 20, right: 20),
-              child: Row(
-                  children: <Widget> [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                            hintText: 'search',
-                            border: InputBorder.none
-                        ),
+      appBar: AppBar(
+        toolbarHeight: 50.0,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.black54,
+        flexibleSpace: Container(
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: <Color>[Colors.black54, Colors.blueGrey]))),
+        title:
+        Container(
+          margin: const EdgeInsets.only(top: 15, bottom: 15,),
+          // padding: const EdgeInsets.only(left: 10, right: 10),
+          child: Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:  [
+                Container(
+                    margin: const EdgeInsets.only(right: 25),
+                    child: const BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 30,)),
+                Container(
+                    child: (
+                        Expanded(
+                          child: TextField(
+                            style: const TextStyle(color: Colors.white),
+                            controller: searchController,
+                            decoration:  const InputDecoration(
+                              hintStyle: TextStyle(color: Colors.white),
+                                hintText: 'search',
+                                border: InputBorder.none
+                            ),
+                          ),
+                        )
+                    )),
+                Center(
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => Search(
+                            searchQuery: searchController.text,)));
+                    },
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(13),
+                        // color: Color(0xFF89dad0),
                       ),
+                      child: const Icon(Icons.search, color: Colors.white,),
                     ),
-                    Center(
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        child: Icon(Icons.search, color: Colors.black,),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          // color: Color(0xFF89dad0),
-                        ),
-                      ),
-                    )
-                  ]),
+                  ),
+                )
+              ],
             ),
-            SizedBox(height: 16,),
-            Container(
-              height: 80,
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: ListView.builder(
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                  itemBuilder: (context, index){
-                  return CategoriesTile(
-                    title: categories[index].category_name,
-                    imgUrl: categories[index].img_url,
-                  );
-                  }),
-            ),
-            SizedBox(height: 16,),
-            WallpapersList(wallpapers: wallpapers, context: context)
-          ],
+          ),
+        ),),
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.black87,
+          child: Column(
+            children: [
+              const SizedBox(height: 16,),
+              Container(
+                height: 80,
+                padding: const EdgeInsets.symmetric(horizontal:8),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                    itemBuilder: (context, index){
+                    return CategoriesTile(
+                      title: categories[index].category_name,
+                      imgUrl: categories[index].img_url,
+                    );
+                    }),
+              ),
+              WallpapersList(wallpapers: wallpapers, context: context)
+            ],
+          ),
         ),
       ),
     ) ;
@@ -128,7 +148,7 @@ class CategoriesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 4),
+      margin: const EdgeInsets.only(right: 4),
       child: Stack( children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
@@ -140,7 +160,7 @@ class CategoriesTile extends StatelessWidget {
           ),
           height: 50, width: 100,
           alignment: Alignment.center,
-          child: Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),),
+          child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),),
         )
       ],
       ),

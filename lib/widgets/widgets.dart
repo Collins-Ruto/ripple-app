@@ -7,16 +7,24 @@ class BigText extends StatelessWidget {
   final String text;
   final double size;
 
-  const BigText({Key? key, this.color = const Color(0xFF332d2b), required this.text, this.size = 20}) : super(key: key);
+  const BigText({Key? key, this.color = const Color(0xFF332d2b), required this.text, this.size = 15}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: color,
-        fontFamily: 'Roboto',
-        fontSize: size
+    return Container(
+      // margin: EdgeInsets.only(left: -10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontFamily: 'Roboto',
+              fontSize: size
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -24,7 +32,7 @@ class BigText extends StatelessWidget {
 
 Widget WallpapersList({required List<WallpaperModel> wallpapers, context}) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 16),
+    padding: EdgeInsets.symmetric(horizontal: 8),
     child: GridView.count(
       shrinkWrap: true,
       physics: ClampingScrollPhysics(),
