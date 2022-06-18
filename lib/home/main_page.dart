@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ripple/data/data.dart';
+import 'package:ripple/home/categories.dart';
 import 'package:ripple/home/search.dart';
 import 'package:ripple/models/wallpaper_model.dart';
 import 'package:ripple/widgets/widgets.dart';
@@ -147,22 +148,29 @@ class CategoriesTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 4),
-      child: Stack( children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-            child: Image.network(imgUrl, height: 50, width: 100, fit: BoxFit.cover,)),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.black26,
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => Categories(
+              category: title,)));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 4),
+        child: Stack( children: [
+          ClipRRect(
             borderRadius: BorderRadius.circular(8),
-          ),
-          height: 50, width: 100,
-          alignment: Alignment.center,
-          child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),),
-        )
-      ],
+              child: Image.network(imgUrl, height: 50, width: 100, fit: BoxFit.cover,)),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            height: 50, width: 100,
+            alignment: Alignment.center,
+            child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),),
+          )
+        ],
+        ),
       ),
     );
   }
