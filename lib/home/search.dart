@@ -36,8 +36,9 @@ class _SearchState extends State<Search> {
     imageData["photos"].forEach((element){
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
-      wallModel.portrait = element["src"]["medium"];
-      wallModel.original = element["src"]["large"];
+      wallModel.medium = element["src"]["medium"];
+      wallModel.large = element["src"]["large"];
+      wallModel.original = element["src"]["large2x"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });

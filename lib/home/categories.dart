@@ -25,7 +25,7 @@ class _CategoriesState extends State<Categories> {
   TextEditingController searchController = TextEditingController();
 
   getSearchWallpapers(String query) async {
-    var url = Uri.parse(  "https://api.pexels.com/v1/search?query=$query&per_page=15"
+    var url = Uri.parse(  "https://api.pexels.com/v1/search?query=$query&per_page=25"
     );
     var response = await http.get(url,
         headers: { "Authorization" : apiKey }
@@ -36,8 +36,9 @@ class _CategoriesState extends State<Categories> {
     imageData["photos"].forEach((element){
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
-      wallModel.portrait = element["src"]["medium"];
-      wallModel.original = element["src"]["original"];
+      wallModel.medium = element["src"]["medium"];
+      wallModel.large = element["src"]["large"];
+      wallModel.original = element["src"]["large2x"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });

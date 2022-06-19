@@ -36,8 +36,9 @@ class _HomePageState extends State<HomePage> {
     imageData["photos"].forEach((element){
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
-      wallModel.portrait = element["src"]["medium"];
-      wallModel.original = element["src"]["large"];
+      wallModel.medium = element["src"]["medium"];
+      wallModel.original = element["src"]["large2x"];
+      wallModel.large = element["src"]["large"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });
@@ -102,7 +103,6 @@ class _HomePageState extends State<HomePage> {
                       height: 35,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(13),
-                        // color: Color(0xFF89dad0),
                       ),
                       child: const Icon(Icons.search, color: Colors.white,),
                     ),

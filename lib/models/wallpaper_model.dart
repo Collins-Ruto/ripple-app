@@ -1,8 +1,9 @@
 class WallpaperModel {
   String photographer;
   int id;
-  String portrait;
+  String medium;
   String original;
+  String large;
 
-  WallpaperModel({this.id = 0, this.photographer = '', this.portrait = '', this.original = ''});
+  WallpaperModel({this.id = 0, this.photographer = '', this.medium = '', this.original = '', this.large = ''});
 }

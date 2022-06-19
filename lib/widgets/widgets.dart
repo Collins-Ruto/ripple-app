@@ -46,13 +46,13 @@ Widget wallpapersList({required List<WallpaperModel> wallpapers, context}) {
             child: GestureDetector(
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => ImageView(imgUrl: wallpaper.original,)));
+                    builder: (context) => ImageView(imgUrl: wallpaper.large, imgOriginal: wallpaper.original)));
               },
               child: Hero(
-                tag: wallpaper.portrait,
+                tag: wallpaper.medium,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6),
-                    child: Image.network(wallpaper.portrait, fit: BoxFit.cover,)),
+                    child: Image.network(wallpaper.medium, fit: BoxFit.cover,)),
               ),
             ),);
       }).toList(),
