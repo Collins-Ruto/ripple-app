@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:ripple/data/data.dart';
 import 'package:ripple/home/categories.dart';
@@ -38,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
       wallModel.portrait = element["src"]["medium"];
-      wallModel.original = element["src"]["original"];
+      wallModel.original = element["src"]["large"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });
@@ -133,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                     );
                     }),
               ),
-              WallpapersList(wallpapers: wallpapers, context: context)
+              wallpapersList(wallpapers: wallpapers, context: context)
             ],
           ),
         ),
@@ -157,9 +156,10 @@ class CategoriesTile extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(right: 4),
         child: Stack( children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-              child: Image.network(imgUrl, height: 50, width: 100, fit: BoxFit.cover,)),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                  child: Image.network(imgUrl, height: 50, width: 100, fit: BoxFit.cover,)),
+
           Container(
             decoration: BoxDecoration(
               color: Colors.black26,
@@ -174,5 +174,7 @@ class CategoriesTile extends StatelessWidget {
       ),
     );
   }
+
+
 }
 

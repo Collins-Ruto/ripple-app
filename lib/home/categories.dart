@@ -113,7 +113,7 @@ class _CategoriesState extends State<Categories> {
                       ),
                     ],
                   )),
-              WallpapersList(wallpapers: wallpapers, context: context)
+              wallpapersList(wallpapers: wallpapers, context: context)
             ],
           ),
         ),

@@ -37,7 +37,7 @@ class _SearchState extends State<Search> {
       wallModel.id = element["id"];
       wallModel.photographer = element["photographer"];
       wallModel.portrait = element["src"]["medium"];
-      wallModel.original = element["src"]["original"];
+      wallModel.original = element["src"]["large"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });
@@ -113,7 +113,7 @@ class _SearchState extends State<Search> {
                     ),
                 ],
               )),
-              WallpapersList(wallpapers: wallpapers, context: context)
+              wallpapersList(wallpapers: wallpapers, context: context)
             ],
           ),
         ),
