@@ -10,16 +10,17 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/wallpaper_model.dart';
 
 class ImageView extends StatefulWidget {
-  const ImageView({Key? key, required this.imgUrl, required this.imgOriginal, required this.wallpapers, required this.wall}) : super(key: key);
+  ImageView({Key? key, required this.imgUrl, required this.imgOriginal, required this.wallpapers, required this.wall}) : super(key: key);
 
   final String imgUrl;
   final String imgOriginal;
   final List<WallpaperModel> wallpapers;
   final WallpaperModel wall;
+  late String downloaded = '';
 
   @override
   State<ImageView> createState() => _ImageViewState();
@@ -32,6 +33,8 @@ class _ImageViewState extends State<ImageView> {
   bool isDone = false;
   bool hasDownload = false;
   int initial = 1;
+  int fake = 1;
+
   final controller=SwiperController();
 
   dynamic filePath;
@@ -47,21 +50,30 @@ class _ImageViewState extends State<ImageView> {
     return Scaffold(
       body: Swiper(
         controller: SwiperController(),
-          customLayoutOption: CustomLayoutOption(
-              startIndex: widget.wallpapers.indexOf(widget.wall),
-              stateCount: widget.wallpapers.length
-          ),
+          // customLayoutOption: CustomLayoutOption(
+          //     startIndex: widget.wallpapers.indexOf(widget.wall),
+          //     stateCount: widget.wallpapers.length
+          // ),
         itemBuilder: (BuildContext context, int index) {
-          print(widget.wallpapers.indexOf(widget.wall));
+          print(index);
           if (index != widget.wallpapers.indexOf(widget.wall) || initial == 1) {
           index += widget.wallpapers.indexOf(widget.wall);
-          initial += 1;
+          initial = 2;
           }
           if (index >= widget.wallpapers.length && index > 0) {
             index = widget.wallpapers.length - index;
           }
           if (index < 0) {
             index = index * -1;
+          }
+          if (fake != index) {
+            hasDownload = false;
+            fake = index;
+          }
+          print(widget.downloaded);
+          print(widget.wallpapers[index].original);
+          if (widget.downloaded == widget.wallpapers[index].original){
+            hasDownload = true;
           }
           return Stack(
           children: [Container(
@@ -89,7 +101,7 @@ class _ImageViewState extends State<ImageView> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    _save();
+                    // _save();
                     isDownload = true;
                     setState(() {});
                     hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].original);
@@ -159,10 +171,13 @@ class _ImageViewState extends State<ImageView> {
 
       WallpaperManagerFlutter().setwallpaperfromFile(cachedimage, location);
       isDone = true;
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString("downloaded", url);
       setState((){});
       Timer(const Duration(seconds: 1), () {
         isDownload = false;
         hasDownload = true;
+        widget.downloaded = url;
         setState((){});
       });
 

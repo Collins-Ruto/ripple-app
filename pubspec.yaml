@@ -48,6 +48,7 @@ dev_dependencies:
   flutter_cache_manager: ^3.3.0
   wallpaper_manager_flutter: ^0.0.2
   flutter_swiper_null_safety: ^1.0.2
+  shared_preferences: ^2.0.15
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
