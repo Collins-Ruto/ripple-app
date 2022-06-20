@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ripple/data/data.dart';
-import 'package:ripple/home/categories.dart';
 import 'package:ripple/home/search.dart';
 import 'package:ripple/models/wallpaper_model.dart';
 import 'package:ripple/widgets/widgets.dart';
@@ -26,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   WallpaperModel wallModel = WallpaperModel();
 
   getWallpapers() async {
-    var url = Uri.parse("https://api.pexels.com/v1/curated");
+    var url = Uri.parse("https://api.pexels.com/v1/curated?page=2&per_page=30");
     var response = await http.get(url,
       headers: { "Authorization" : apiKey }
     );
@@ -150,8 +149,8 @@ class CategoriesTile extends StatelessWidget {
     return GestureDetector(
       onTap: (){
         Navigator.push(context, MaterialPageRoute(
-            builder: (context) => Categories(
-              category: title,)));
+            builder: (context) => Search(
+              searchQuery: title,)));
       },
       child: Container(
         margin: const EdgeInsets.only(right: 4),

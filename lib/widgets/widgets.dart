@@ -21,7 +21,7 @@ class BigText extends StatelessWidget {
             text,
             style: TextStyle(
               color: color,
-              fontFamily: 'Roboto',
+              fontFamily: 'Monospace',
               fontSize: size
             ),
           ),
@@ -46,7 +46,8 @@ Widget wallpapersList({required List<WallpaperModel> wallpapers, context}) {
             child: GestureDetector(
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => ImageView(imgUrl: wallpaper.large, imgOriginal: wallpaper.original)));
+                    builder: (context ) => ImageView(
+                      imgUrl: wallpaper.large, imgOriginal: wallpaper.original, wallpapers: wallpapers,wall: wallpaper)));
               },
               child: Hero(
                 tag: wallpaper.medium,

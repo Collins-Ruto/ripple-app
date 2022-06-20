@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wallpaper_manager_flutter/wallpaper_manager_flutter.dart';
@@ -8,15 +9,17 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:dio/dio.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
+import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
+
+import '../models/wallpaper_model.dart';
 
 class ImageView extends StatefulWidget {
-  const ImageView({Key? key, required this.imgUrl, required this.imgOriginal,}) : super(key: key);
+  const ImageView({Key? key, required this.imgUrl, required this.imgOriginal, required this.wallpapers, required this.wall}) : super(key: key);
 
   final String imgUrl;
   final String imgOriginal;
+  final List<WallpaperModel> wallpapers;
+  final WallpaperModel wall;
 
   @override
   State<ImageView> createState() => _ImageViewState();
@@ -28,9 +31,13 @@ class _ImageViewState extends State<ImageView> {
   bool  isDownload = false;
   bool isDone = false;
   bool hasDownload = false;
-  var filePath;
+  int initial = 1;
+  final controller=SwiperController();
+
+  dynamic filePath;
   @override
   void initState() {
+    controller.move(7);
     imgUrl = widget.imgUrl;
     super.initState();
   }
@@ -38,16 +45,25 @@ class _ImageViewState extends State<ImageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onPanUpdate: (details) {
-          if (details.delta.dx > 0) {
-
+      body: Swiper(
+        controller: SwiperController(),
+          customLayoutOption: CustomLayoutOption(
+              startIndex: widget.wallpapers.indexOf(widget.wall),
+              stateCount: widget.wallpapers.length
+          ),
+        itemBuilder: (BuildContext context, int index) {
+          print(widget.wallpapers.indexOf(widget.wall));
+          if (index != widget.wallpapers.indexOf(widget.wall) || initial == 1) {
+          index += widget.wallpapers.indexOf(widget.wall);
+          initial += 1;
           }
-          if (details.delta.dx < 0) {
-
+          if (index >= widget.wallpapers.length && index > 0) {
+            index = widget.wallpapers.length - index;
           }
-        },
-        child: Stack(
+          if (index < 0) {
+            index = index * -1;
+          }
+          return Stack(
           children: [Container(
             color: Colors.black54,
             child: SizedBox(
@@ -55,16 +71,14 @@ class _ImageViewState extends State<ImageView> {
                 width: MediaQuery.of(context).size.width,
                 child: CachedNetworkImage(
                     fit: BoxFit.cover,
-                  // placeholder: (context, url) => Image.network(imgUrl),
                   progressIndicatorBuilder: (context, url, progress) => Center(
                     child: CircularProgressIndicator(color: const Color(0xDEE6FDFD),
                       value: progress.progress,
                     ),
                   ),
-                  imageUrl: widget.imgOriginal
+                  imageUrl: widget.wallpapers[index].original,
                 )),
           ),
-              // child: Image.network(widget.imgUrl, fit: BoxFit.cover,)),
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
@@ -78,7 +92,7 @@ class _ImageViewState extends State<ImageView> {
                     _save();
                     isDownload = true;
                     setState(() {});
-                    hasDownload? Navigator.pop(context) :setWallpaperFromFile();
+                    hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].original);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -106,7 +120,7 @@ class _ImageViewState extends State<ImageView> {
               ],
             ),
           ),],
-        ),
+        );}, itemCount: widget.wallpapers.length,
       ),
     );
   }
@@ -122,8 +136,6 @@ class _ImageViewState extends State<ImageView> {
         Uint8List.fromList(response.data),
         quality: 60,
         name: "hello");
-    print(result);
-    Navigator.pop(context);
   }
 
   _askPermission() async{
@@ -135,13 +147,13 @@ class _ImageViewState extends State<ImageView> {
     }
   }
 
-  Future<void> setWallpaperFromFile() async {
+  Future<void> setWallpaperFromFile(String url) async {
     String result;
-    var file = await DefaultCacheManager().getSingleFile(
-      widget.imgUrl
-    );
+    // var file = await DefaultCacheManager().getSingleFile(
+    //   widget.imgUrl
+    // );
     try {
-      File cachedimage = await DefaultCacheManager().getSingleFile(widget.imgOriginal);  //image file
+      File cachedimage = await DefaultCacheManager().getSingleFile(url);  //image file
 
       int location = WallpaperManagerFlutter.HOME_SCREEN;  //Choose screen type
 
@@ -160,30 +172,3 @@ class _ImageViewState extends State<ImageView> {
     if (!mounted) return;
   }
 }
-
-// class ImgView extends StatefulWidget {
-//   final String imgOriginal;
-//   final String imgUrl;
-//
-//   const ImgView({Key? key, required this.imgOriginal, required this.imgUrl}) : super(key: key);
-//
-//   @override
-//   State<ImgView> createState() => _ImgViewState();
-// }
-//
-// class _ImgViewState extends State<ImgView> {
-//   @override
-//   Widget build(BuildContext context) {
-//     bool isImg = false;
-//     File cachedimage = DefaultCacheManager().getSingleFile(widget.imgUrl);
-//
-//     Future<File> getImage() async {
-//       File cachedimage = await DefaultCacheManager().getSingleFile(widget.imgOriginal);
-//       isImg = true;
-//       setState(() {});
-//       return cachedimage;
-//     }
-//
-//     return !isImg ? Image.network(widget.imgUrl, fit: BoxFit.cover,) : Image.file(cachedimage);
-//   }
-// }

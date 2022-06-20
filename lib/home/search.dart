@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ripple/home/main_page.dart';
@@ -25,7 +24,7 @@ class _SearchState extends State<Search> {
   WallpaperModel wallModel = WallpaperModel();
 
   getSearchWallpapers(String query) async {
-    var url = Uri.parse(  "https://api.pexels.com/v1/search?query=$query&per_page=15"
+    var url = Uri.parse(  "https://api.pexels.com/v1/search?query=$query&per_page=25"
     );
     var response = await http.get(url,
         headers: { "Authorization" : apiKey }
@@ -68,7 +67,7 @@ class _SearchState extends State<Search> {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: <Color>[Colors.black54, Colors.blueGrey]))),
-        title: const BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 25,),
+        title: const BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 27,),
         actions: [IconButton(onPressed: () {
               Navigator.push(context, MaterialPageRoute(
                   builder: (context) => const HomePage()));
@@ -80,17 +79,19 @@ class _SearchState extends State<Search> {
           child: Column(
             children: [
               Container(
-                height: 30,
+                height: 40,
                 decoration: BoxDecoration(
                   color: const Color(0xffc8d0e2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 8,),
                   margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
                   child: Row(
                     children: [
                       Expanded(
-                      child: TextField(
+                      child: TextField( style: const TextStyle(
+                        fontSize: 22,
+                      ),
                       controller: searchController,
                       decoration: const InputDecoration(
                           hintText: 'search',
@@ -102,7 +103,7 @@ class _SearchState extends State<Search> {
                       child: GestureDetector(
                         onTap: (){
                           Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => const HomePage()));
+                              builder: (context) => Search(searchQuery: searchController.text,)));
                         },
                         child: Container(
                           decoration: BoxDecoration(
