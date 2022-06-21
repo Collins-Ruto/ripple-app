@@ -10,7 +10,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/wallpaper_model.dart';
 
 class ImageView extends StatefulWidget {
@@ -20,7 +19,6 @@ class ImageView extends StatefulWidget {
   final String imgOriginal;
   final List<WallpaperModel> wallpapers;
   final WallpaperModel wall;
-  late String downloaded = '';
 
   @override
   State<ImageView> createState() => _ImageViewState();
@@ -34,6 +32,7 @@ class _ImageViewState extends State<ImageView> {
   bool hasDownload = false;
   int initial = 1;
   int fake = 1;
+  late String downloaded = '';
 
   final controller=SwiperController();
 
@@ -70,9 +69,9 @@ class _ImageViewState extends State<ImageView> {
             hasDownload = false;
             fake = index;
           }
-          print(widget.downloaded);
+          print(downloaded);
           print(widget.wallpapers[index].original);
-          if (widget.downloaded == widget.wallpapers[index].original){
+          if (downloaded == widget.wallpapers[index].original){
             hasDownload = true;
           }
           return Stack(
@@ -171,13 +170,11 @@ class _ImageViewState extends State<ImageView> {
 
       WallpaperManagerFlutter().setwallpaperfromFile(cachedimage, location);
       isDone = true;
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString("downloaded", url);
       setState((){});
       Timer(const Duration(seconds: 1), () {
         isDownload = false;
         hasDownload = true;
-        widget.downloaded = url;
+        downloaded = url;
         setState((){});
       });
 
