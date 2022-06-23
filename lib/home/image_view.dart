@@ -11,6 +11,10 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import '../models/wallpaper_model.dart';
+import 'package:path_provider/path_provider.dart';
+
+final List<String> downloaded = [];
+bool isPhone = Platform.isAndroid || Platform.isIOS ? true : false;
 
 class ImageView extends StatefulWidget {
   ImageView({Key? key, required this.imgUrl, required this.imgOriginal, required this.wallpapers, required this.wall}) : super(key: key);
@@ -27,12 +31,11 @@ class ImageView extends StatefulWidget {
 class _ImageViewState extends State<ImageView> {
 
   late String imgUrl;
-  bool  isDownload = false;
+  bool  isDownloading = false;
   bool isDone = false;
   bool hasDownload = false;
   int initial = 1;
   int fake = 1;
-  late String downloaded = '';
 
   final controller=SwiperController();
 
@@ -49,12 +52,7 @@ class _ImageViewState extends State<ImageView> {
     return Scaffold(
       body: Swiper(
         controller: SwiperController(),
-          // customLayoutOption: CustomLayoutOption(
-          //     startIndex: widget.wallpapers.indexOf(widget.wall),
-          //     stateCount: widget.wallpapers.length
-          // ),
         itemBuilder: (BuildContext context, int index) {
-          print(index);
           if (index != widget.wallpapers.indexOf(widget.wall) || initial == 1) {
           index += widget.wallpapers.indexOf(widget.wall);
           initial = 2;
@@ -70,8 +68,8 @@ class _ImageViewState extends State<ImageView> {
             fake = index;
           }
           print(downloaded);
-          print(widget.wallpapers[index].original);
-          if (downloaded == widget.wallpapers[index].original){
+          print(widget.wallpapers[index].medium);
+          if (downloaded.contains(widget.wallpapers[index].original)){
             hasDownload = true;
           }
           return Stack(
@@ -87,7 +85,7 @@ class _ImageViewState extends State<ImageView> {
                       value: progress.progress,
                     ),
                   ),
-                  imageUrl: widget.wallpapers[index].original,
+                  imageUrl: widget.wallpapers[index].large2x,
                 )),
           ),
           Container(
@@ -100,10 +98,11 @@ class _ImageViewState extends State<ImageView> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // _save();
-                    isDownload = true;
+                    _save(widget.wallpapers[index].alt);
+                    isDownloading = true;
                     setState(() {});
-                    hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].original);
+                    paths(widget.wallpapers[index].original, widget.wallpapers[index].alt);
+                    hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].large2x);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -119,7 +118,7 @@ class _ImageViewState extends State<ImageView> {
                       )
                     ),
                     child: Text(
-                      isDownload ? !isDone  ? "downloading...": "success": hasDownload? "Back Home" :"Set Wallpaper",
+                      isDownloading ? !isDone  ? "downloading...": "success": hasDownload? "Back Home" :"Set Wallpaper",
                       style: const TextStyle(fontSize: 20, color: Colors.white70),),
                   ),
                 ),
@@ -136,50 +135,87 @@ class _ImageViewState extends State<ImageView> {
     );
   }
 
-  _save() async {
+  void paths(String url, String alt) async {
+    if (Platform.isAndroid || Platform.isIOS) {return;}
+    Directory docDir = await getApplicationDocumentsDirectory();
+    String folderName = "ripple";
+    final Directory docDirFolder = Directory('${docDir.path}/$folderName/');
+    if (!await docDirFolder.exists()) {
+      final Directory newFolder = await docDirFolder.create(recursive: true);
+      print(newFolder.path);
+    }
+
+    String fullPath = "${docDirFolder.path}${alt}_img.jpeg";
+    try {
+      Response response = await Dio().get(
+        url,
+        options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: false,
+            validateStatus: (status) {
+              return status! < 500;
+            }),
+      );
+      print(response.headers);
+      File file = File(fullPath);
+      var raf = file.openSync(mode: FileMode.write);
+      raf.writeFromSync(response.data);
+      await raf.close();
+
+      isDone = true;
+      setState((){});
+      Timer(const Duration(seconds: 1), () {
+        isDownloading = false;
+        hasDownload = true;
+        downloaded.add(url);
+        setState((){});
+      });
+    } catch (e) {
+      print(e);
+    }
+    print('full path $fullPath');
+  }
+
+  _save(String alt) async {
+    if (!Platform.isAndroid || !Platform.isIOS) {return;}
     if (Platform.isAndroid) {
       await _askPermission();
     }
     var response = await Dio().get(
         widget.imgUrl,
         options: Options(responseType: ResponseType.bytes));
-    final result = await ImageGallerySaver.saveImage(
+    await ImageGallerySaver.saveImage(
         Uint8List.fromList(response.data),
         quality: 60,
-        name: "hello");
+        name: alt);
   }
 
   _askPermission() async{
     if (Platform.isIOS) {
-      Map<Permission, PermissionStatus> statuses =
+      // Map<Permission, PermissionStatus> statuses =
       (await Permission.photos.request()) as Map<Permission, PermissionStatus>;
     } else {
-      PermissionStatus permission = await Permission.storage.status;
+      await Permission.storage.status;
     }
   }
 
   Future<void> setWallpaperFromFile(String url) async {
-    String result;
-    // var file = await DefaultCacheManager().getSingleFile(
-    //   widget.imgUrl
-    // );
+    if (!Platform.isAndroid || !Platform.isIOS) {return;}
     try {
       File cachedimage = await DefaultCacheManager().getSingleFile(url);  //image file
-
       int location = WallpaperManagerFlutter.HOME_SCREEN;  //Choose screen type
-
       WallpaperManagerFlutter().setwallpaperfromFile(cachedimage, location);
+
       isDone = true;
       setState((){});
       Timer(const Duration(seconds: 1), () {
-        isDownload = false;
+        isDownloading = false;
         hasDownload = true;
-        downloaded = url;
         setState((){});
       });
 
     } on PlatformException {
-      result = 'Failed to get wallpaper.';
+      'Failed to get wallpaper.';
     }
     if (!mounted) return;
   }

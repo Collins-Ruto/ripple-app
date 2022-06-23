@@ -1,9 +1,10 @@
 class WallpaperModel {
-  String photographer;
-  int id;
+  String large2x;
+  String alt;
   String medium;
   String original;
   String large;
+  String landscape;
 
-  WallpaperModel({this.id = 0, this.photographer = '', this.medium = '', this.original = '', this.large = ''});
+  WallpaperModel({this.alt = 'img', this.large2x = '', this.medium = '', this.original = '', this.large = '', this.landscape = ''});
 }

@@ -33,11 +33,12 @@ class _SearchState extends State<Search> {
     Map<String, dynamic> imageData = jsonDecode(response.body);
 
     imageData["photos"].forEach((element){
-      wallModel.id = element["id"];
-      wallModel.photographer = element["photographer"];
+      wallModel.alt = element["alt"];
+      wallModel.large2x = element["src"]["large2x"];
       wallModel.medium = element["src"]["medium"];
       wallModel.large = element["src"]["large"];
-      wallModel.original = element["src"]["large2x"];
+      wallModel.original = element["src"]["original"];
+      wallModel.landscape = element["src"]["landscape"];
       wallpapers.add(wallModel);
       wallModel = WallpaperModel();
     });

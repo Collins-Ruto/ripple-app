@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../home/image_view.dart';
@@ -32,13 +34,14 @@ class BigText extends StatelessWidget {
 }
 
 Widget wallpapersList({required List<WallpaperModel> wallpapers, context}) {
+  bool isPhone = Platform.isAndroid || Platform.isIOS ? true : false;
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 8),
     child: GridView.count(
       shrinkWrap: true,
       physics: const ClampingScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 0.6,
+      crossAxisCount: isPhone ? 2 : 4,
+      childAspectRatio: 1.6,
       mainAxisSpacing: 6.0,
       crossAxisSpacing: 6.0,
       children: wallpapers.map((wallpaper){
@@ -53,7 +56,7 @@ Widget wallpapersList({required List<WallpaperModel> wallpapers, context}) {
                 tag: wallpaper.medium,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6),
-                    child: Image.network(wallpaper.medium, fit: BoxFit.cover,)),
+                    child: Image.network(isPhone? wallpaper.medium: wallpaper.landscape, fit: BoxFit.cover,)),
               ),
             ),);
       }).toList(),
