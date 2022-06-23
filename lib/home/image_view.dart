@@ -12,6 +12,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import '../models/wallpaper_model.dart';
 import 'package:path_provider/path_provider.dart';
+FocusNode focusNode = FocusNode();
 
 final List<String> downloaded = [];
 bool isPhone = Platform.isAndroid || Platform.isIOS ? true : false;
@@ -49,6 +50,7 @@ class _ImageViewState extends State<ImageView> {
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).requestFocus(focusNode);
     return Scaffold(
       body: Swiper(
         controller: SwiperController(),
@@ -67,70 +69,86 @@ class _ImageViewState extends State<ImageView> {
             hasDownload = false;
             fake = index;
           }
+          print("idex: $index");
           print(downloaded);
           print(widget.wallpapers[index].medium);
           if (downloaded.contains(widget.wallpapers[index].original)){
             hasDownload = true;
           }
-          return Stack(
-          children: [Container(
-            color: Colors.black54,
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                  progressIndicatorBuilder: (context, url, progress) => Center(
-                    child: CircularProgressIndicator(color: const Color(0xDEE6FDFD),
-                      value: progress.progress,
+          return RawKeyboardListener(
+            autofocus: true,
+            focusNode: focusNode,
+            onKey: (RawKeyEvent event) {
+              if (event.data.logicalKey == LogicalKeyboardKey.arrowRight) {
+                index += 1;
+                print("ringht key");
+                setState(() {});
+              }
+              if (event.data.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                index -= 1;
+                setState(() {});
+              }
+            },
+            child: Stack(
+            children: [Container(
+              color: Colors.black54,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                    progressIndicatorBuilder: (context, url, progress) => Center(
+                      child: CircularProgressIndicator(color: const Color(0xDEE6FDFD),
+                        value: progress.progress,
+                      ),
                     ),
-                  ),
-                  imageUrl: widget.wallpapers[index].large2x,
-                )),
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.only(bottom: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    _save(widget.wallpapers[index].alt);
-                    isDownloading = true;
-                    setState(() {});
-                    paths(widget.wallpapers[index].original, widget.wallpapers[index].alt);
-                    hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].large2x);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white30, width: 1),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0x36FFFFFF  ),
-                          Color(0x0FFFFFFF)
-                        ]
-                      )
-                    ),
-                    child: Text(
-                      isDownloading ? !isDone  ? "downloading...": "success": hasDownload? "Back Home" :"Set Wallpaper",
-                      style: const TextStyle(fontSize: 20, color: Colors.white70),),
-                  ),
-                ),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("cancel", style: TextStyle(color: Colors.white, fontSize: 18),))
-              ],
+                    imageUrl: widget.wallpapers[index].large2x,
+                  )),
             ),
-          ),],
-        );}, itemCount: widget.wallpapers.length,
+            Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.bottomCenter,
+              margin: const EdgeInsets.only(bottom: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _save(widget.wallpapers[index].alt);
+                      isDownloading = true;
+                      setState(() {});
+                      paths(widget.wallpapers[index].original, widget.wallpapers[index].alt);
+                      hasDownload? Navigator.pop(context) :setWallpaperFromFile(widget.wallpapers[index].large2x);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white30, width: 1),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0x36FFFFFF  ),
+                            Color(0x0FFFFFFF)
+                          ]
+                        )
+                      ),
+                      child: Text(
+                        isDownloading ? !isDone  ? "downloading...": "success": hasDownload? "Back Home" :"Set Wallpaper",
+                        style: const TextStyle(fontSize: 20, color: Colors.white70),),
+                    ),
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("cancel", style: TextStyle(color: Colors.white, fontSize: 18),))
+                ],
+              ),
+            ),],
+        ),
+          );}, itemCount: widget.wallpapers.length,
       ),
     );
   }

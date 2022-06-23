@@ -6,10 +6,11 @@ import 'package:ripple/home/search.dart';
 import 'package:ripple/models/wallpaper_model.dart';
 import 'package:ripple/widgets/widgets.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/services.dart';
 import '../models/categories_model.dart';
 
 bool isPhone = Platform.isAndroid || Platform.isIOS ? true : false;
+FocusNode focusNode = FocusNode();
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -57,6 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).requestFocus(focusNode);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50.0,
@@ -70,47 +72,58 @@ class _HomePageState extends State<HomePage> {
                     end: Alignment.centerRight,
                     colors: <Color>[Colors.black54, Colors.blueGrey]))),
         title:
-        Container(
-          margin: const EdgeInsets.only(top: 15, bottom: 15,),
-          // padding: const EdgeInsets.only(left: 10, right: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children:  [
-              Container(
-                  margin: const EdgeInsets.only(right: 25),
-                  child: const BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 30,)),
-              Container(
-                  child: (
-                      Expanded(
-                        child: TextField(
-                          style: const TextStyle(color: Colors.white),
-                          controller: searchController,
-                          decoration:  const InputDecoration(
-                            hintStyle: TextStyle(color: Colors.white),
-                              hintText: 'search',
-                              border: InputBorder.none
+        RawKeyboardListener(
+          autofocus: true,
+          focusNode: focusNode,
+          onKey: (RawKeyEvent event) {
+            if (event.data.logicalKey == LogicalKeyboardKey.enter) {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => Search(
+                    searchQuery: searchController.text,)));
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.only(top: 15, bottom: 15,),
+            // padding: const EdgeInsets.only(left: 10, right: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:  [
+                Container(
+                    margin: const EdgeInsets.only(right: 25),
+                    child: const BigText(text: 'Ripple', color: Color(0xFF89dad0), size: 30,)),
+                Container(
+                    child: (
+                        Expanded(
+                          child: TextField(
+                            style: const TextStyle(color: Colors.white),
+                            controller: searchController,
+                            decoration:  const InputDecoration(
+                              hintStyle: TextStyle(color: Colors.white),
+                                hintText: 'search',
+                                border: InputBorder.none
+                            ),
                           ),
-                        ),
-                      )
-                  )),
-              Center(
-                child: GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => Search(
-                          searchQuery: searchController.text,)));
-                  },
-                  child: Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(13),
+                        )
+                    )),
+                Center(
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => Search(
+                            searchQuery: searchController.text,)));
+                    },
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Icon(Icons.search, color: Colors.white,),
                     ),
-                    child: const Icon(Icons.search, color: Colors.white,),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),),
       body: SingleChildScrollView(
