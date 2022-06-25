@@ -41,7 +41,7 @@ Widget wallpapersList({required List<WallpaperModel> wallpapers, context}) {
       shrinkWrap: true,
       physics: const ClampingScrollPhysics(),
       crossAxisCount: isPhone ? 2 : 4,
-      childAspectRatio: 1.6,
+      childAspectRatio: isPhone ? 0.6 : 1.6,
       mainAxisSpacing: 6.0,
       crossAxisSpacing: 6.0,
       children: wallpapers.map((wallpaper){
