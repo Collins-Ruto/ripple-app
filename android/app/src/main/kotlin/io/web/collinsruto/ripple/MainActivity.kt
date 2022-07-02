@@ -1,4 +1,4 @@
-package com.example.ripple
+package io.web.collinsruto.ripple
 
 import io.flutter.embedding.android.FlutterActivity
 
